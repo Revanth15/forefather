@@ -1,0 +1,7 @@
+interface:
+  display_name: "Question-Helper"
+  short_description: "Three-level help for math, coding, and problem-solving."
+  default_prompt: "Help me solve this question in University mode. Use Like a Baby for a very detailed beginner explanation, or Answer now for the direct solution."
+
+policy:
+  allow_implicit_invocation: true
