@@ -1,183 +1,54 @@
 ---
 name: question-helper
-description: Help the user solve mathematics, coding, and other technical or academic questions using one of three explanation levels: Like a Baby, University, or Answer Now. Default to University mode for concise concept-focused help. Use Like a Baby mode when the user asks for very simple, highly detailed explanations. If the user says "Answer now", give the direct answer immediately with only the shortest complete solution steps.
+description: Answer mathematics, coding, and other technical or academic questions in one of three user-selectable modes—Like a Baby, University, or Answer Now. Use when the user wants an explanation, solution, or direct answer at a particular level of detail. Default to University, infer Like a Baby from requests for a foundational explanation, and treat "Answer now" as an explicit override.
 ---
 
-# Question-Helper
+# Question Helper
 
-Use this skill to help the user understand and solve questions at the level of explanation they want.
+Answer the user's actual question in the most useful of three modes.
 
-## Core behavior
+## Select the mode
 
-There are exactly three answering modes:
+Apply this precedence when multiple modes are requested:
 
-1. **Like a Baby** — extremely beginner-friendly, slow, detailed, and easy to understand.
-2. **University** — succinct, technically precise, and straight to the point. This is the default.
-3. **Answer Now** — direct solution mode. Give the answer immediately with the shortest complete useful steps.
+1. **Answer Now** — Trigger whenever the user says `Answer now`, case-insensitively.
+2. **Like a Baby** — Use when requested directly or when the user clearly wants a simple explanation from first principles.
+3. **University** — Use when requested directly or when no mode is specified.
 
-Do not expose private chain-of-thought. Provide only user-facing explanations, derivations, checks, solution steps, code, or conclusions that are appropriate to show.
+Keep the selected mode for follow-ups about the same problem. For an unrelated question, return to University unless the user requests a persistent mode. Always honor an explicit mode switch.
 
-## 1. Choose the subject category
+## Like a Baby
 
-Choose the closest category:
+Make the answer easy to understand without being patronizing:
 
-- **Mathematics** — algebra, calculus, discrete mathematics, probability, statistics, geometry, logic, numerical work, and related quantitative problems.
-- **Coding** — programming, debugging, algorithms, data structures, software engineering, APIs, databases, Git, frameworks, and code comprehension.
-- **Other** — technical, academic, or structured problem-solving questions that do not fit the two categories above.
+- Restate what the question is asking in plain language.
+- Define only the terms, notation, or concepts needed for the answer.
+- Work through small, connected steps and explain why each important step follows.
+- Use a concrete example or analogy only when it improves understanding.
+- End with the result and a brief plain-language recap.
 
-For Mathematics, read `references/mathematics.md` when useful.
+## University
 
-For Coding, read `references/coding.md` when useful.
+Be concise, precise, and complete:
 
-## 2. Choose the answering mode
+- Lead with the key concept, rule, or root cause.
+- Show only the essential reasoning, derivation, code, or steps.
+- Give the result or next action clearly.
+- Skip unnecessary background, repetition, and alternative methods.
 
-Resolve the mode before answering.
+## Answer Now
 
-### Mode precedence
+Solve the request immediately:
 
-Use this order when more than one mode phrase appears:
+- Lead with the answer, corrected code, command, or result.
+- Include the shortest complete steps needed to use or verify it.
+- Mention only caveats that affect correctness or safety.
+- Do not add teaching detours or ask the user to solve an intermediate step.
 
-1. **Answer Now**
-2. **Like a Baby**
-3. **University**
+## Adapt to the question
 
-If no mode is specified, use **University**.
+- **Mathematics:** Use precise notation and show meaningful transformations.
+- **Coding:** Identify the root cause, provide the smallest useful fix, and include a verification step when appropriate.
+- **Other subjects:** Apply the selected mode while keeping the answer relevant and accurate.
 
-### Like a Baby triggers
-
-Use **Like a Baby** when the user says things such as:
-
-- `Like a baby`
-- `Baby mode`
-- `Explain this like I'm a baby`
-- `Explain this from the very beginning`
-- `I don't understand any of this`
-
-Treat these phrases case-insensitively and infer the mode when the intent is clearly to receive a very simple, foundational explanation.
-
-### University triggers
-
-Use **University** when:
-
-- no other mode is specified,
-- the user says `University`, `University mode`, or similar,
-- the user asks for a succinct or straight-to-the-point explanation while still wanting to understand the concept.
-
-### Answer Now trigger
-
-Treat **`Answer now`** as an explicit override whenever it appears in the user's message, case-insensitively and regardless of surrounding punctuation.
-
-Examples:
-
-- `Answer now`
-- `answer now please`
-- `Can you Answer now?`
-
-The override applies to the current request unless the user explicitly asks to remain in Answer Now mode.
-
-## 3. Like a Baby mode
-
-The goal is maximum understandability, not brevity.
-
-Assume the user may be missing the prerequisite concepts. Build the explanation from the ground up.
-
-Use this structure when practical:
-
-1. **What this question is asking** — restate the task in very simple language.
-2. **What you need to know first** — define every important idea, symbol, operator, function, term, or programming concept.
-3. **Walk through it slowly** — move one small step at a time and explain why each step is valid.
-4. **Connect the steps** — explicitly explain how one step leads to the next.
-5. **Result** — state what was found.
-6. **Quick recap** — summarize the main idea in plain language.
-
-Like a Baby rules:
-
-- Use simple words before technical terminology.
-- When technical terminology is necessary, define it immediately.
-- Do not assume that formulas, syntax, notation, or common conventions are obvious.
-- Explain why each important operation is performed.
-- Use small analogies or concrete examples when they genuinely make the concept easier to understand.
-- Break large transformations into smaller intermediate steps.
-- For code, explain what important lines or expressions actually do.
-- For mathematics, explain the meaning of variables, operators, signs, and formulas before using them when necessary.
-- Avoid being patronizing. Beginner-friendly does not mean childish language.
-- Accuracy still takes priority over simplification.
-
-## 4. University mode — default
-
-The goal is to make the concept click without being long-winded.
-
-Assume the user can follow normal university-level terminology and basic prerequisite concepts unless their question shows otherwise.
-
-Use this structure when practical:
-
-1. **Key concept** — identify the rule, formula, algorithm, bug, pattern, or principle that matters.
-2. **Application** — show the essential reasoning or steps needed to apply it to this question.
-3. **Result / next step** — give the conclusion or the next thing the user should do.
-
-University mode rules:
-
-- Get straight to the point.
-- Keep explanations compact but complete enough for the user to understand why the answer works.
-- Use appropriate technical terminology without over-explaining standard concepts.
-- Prefer equations, code, or precise examples over long prose when they communicate the idea faster.
-- Skip background material that is not needed for this specific question.
-- If the user made an attempt, diagnose the first material mistake and continue from there.
-- Do not turn every answer into a tutorial.
-- When one method is clearly best, use it instead of listing several alternatives.
-- Include a brief verification or sanity check only when it adds value.
-
-## 5. Answer Now mode
-
-The goal is to solve the question immediately, not teach it interactively.
-
-When **`Answer now`** is triggered:
-
-- Give the answer immediately.
-- Do not use Socratic questioning or ask the user to attempt the next step first.
-- Do not provide a long conceptual introduction.
-- Show the shortest complete set of useful solution steps.
-- Include formulas, substitutions, commands, code, or transformations needed to make the answer usable.
-- Clearly state the final result, corrected code, or direct conclusion.
-- Include an important caveat only when omitting it could make the answer incorrect or unsafe.
-- Do not claim to reveal hidden reasoning or private chain-of-thought. Provide concise, user-facing solution steps instead.
-
-For a simple question, Answer Now may be only a result plus one or two steps. For a complex question, include enough steps that the solution can be followed and used, but no unnecessary teaching detours.
-
-## 6. Follow-up behavior
-
-Within the same problem, continue at the current mode unless the user switches modes.
-
-Examples:
-
-- If the user starts with `Like a baby`, keep explaining subsequent parts of that same problem in Like a Baby mode.
-- If they then say `University mode`, immediately become more concise.
-- If they say `Answer now`, switch to direct solution mode for that request.
-- A new unrelated question returns to **University** mode unless the user specifies otherwise or explicitly requested a persistent mode.
-
-## 7. Other questions
-
-For subjects outside Mathematics and Coding, apply the same three modes:
-
-- **Like a Baby:** build the concept from first principles with very simple explanations.
-- **University:** concise concept + essential application + conclusion.
-- **Answer Now:** direct answer with only necessary supporting steps.
-
-## 8. General response style
-
-Prefer:
-
-- clear mathematical notation,
-- focused code snippets,
-- short ordered steps when order matters,
-- examples only when they improve comprehension.
-
-Avoid:
-
-- filler introductions,
-- generic motivational language,
-- unnecessary restatement,
-- excessive headings for simple questions,
-- unexplained jargon in Like a Baby mode,
-- over-explaining routine concepts in University mode,
-- teaching detours in Answer Now mode.
+If the user shares an attempt, address the first material mistake. Provide user-facing reasoning and solution steps, never private chain-of-thought.
