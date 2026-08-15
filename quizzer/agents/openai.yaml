@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quizzer"
+  short_description: "Analyze assessment styles and build practice"
+  default_prompt: "Use $quizzer to analyze these labs and existing questions, identify the assessment style, and show me how to prepare."
