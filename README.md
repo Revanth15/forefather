@@ -1,21 +1,22 @@
 # Forefather
 
-Study skills for Codex. Each skill is a folder containing a `SKILL.md` file and display metadata. There is no build step or package installation for this repo.
+Skills for studying and publishing standalone HTML with Codex. Each skill is a folder containing a `SKILL.md` file and display metadata. There is no build step or package installation for this repo.
 
 | Skill | What it does |
 | --- | --- |
 | [quizzer](quizzer/SKILL.md) | Analyzes labs and past assessments, creates practice quizzes when requested, and identifies knowledge gaps from results. |
 | [question-helper](question-helper/SKILL.md) | Answers academic and technical questions in Like a Baby, University, or Answer Now mode. |
+| [html-daemon](html-daemon/SKILL.md) | Saves and manages standalone HTML pages at 111416.xyz, with a Python helper for verified uploads. |
 
 ## Install with Codex
 
 Paste this into Codex:
 
 ```text
-$skill-installer Install quizzer and question-helper from https://github.com/Revanth15/forefather, branch main, into ~/.agents/skills. The skill directories are quizzer and question-helper.
+$skill-installer Install quizzer, question-helper, and html-daemon from https://github.com/Revanth15/forefather, branch main, into ~/.agents/skills. The skill directories are quizzer, question-helper, and html-daemon.
 ```
 
-This installs both skills for your user account. To install just one, name only that skill and its directory.
+This installs all three skills for your user account. To install just one, name only that skill and its directory.
 
 On your next turn, try one of the examples below. If the skill does not appear, restart Codex. In the CLI or IDE extension, use `/skills` to check the list.
 
@@ -38,7 +39,7 @@ Run from the forefather checkout:
 
 ```sh
 mkdir -p ~/.agents/skills
-cp -R quizzer question-helper ~/.agents/skills/
+cp -R quizzer question-helper html-daemon ~/.agents/skills/
 ```
 
 To install only quizzer, for example:
@@ -53,7 +54,7 @@ Replace `/path/to/your-project` with the project's actual path. Run from the for
 
 ```sh
 mkdir -p "/path/to/your-project/.agents/skills"
-cp -R quizzer question-helper "/path/to/your-project/.agents/skills/"
+cp -R quizzer question-helper html-daemon "/path/to/your-project/.agents/skills/"
 ```
 
 Open Codex in that project. You can commit its `.agents/skills/` directory if you want teammates to use the same copies.
@@ -65,16 +66,21 @@ Copy the whole skill folder, including `agents/openai.yaml`. A user installation
 ├── quizzer/
 │   ├── SKILL.md
 │   └── agents/openai.yaml
-└── question-helper/
+├── question-helper/
+│   ├── SKILL.md
+│   └── agents/openai.yaml
+└── html-daemon/
     ├── SKILL.md
-    └── agents/openai.yaml
+    ├── agents/openai.yaml
+    ├── references/api.md
+    └── scripts/html_daemon.py
 ```
 
 Codex's [skill documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) describes discovery locations and project scope.
 
 ## Use the skills
 
-Mention a skill explicitly with `$quizzer` or `$question-helper`. Codex can also select a skill when your request matches its description.
+Mention a skill explicitly with `$quizzer`, `$question-helper`, or `$html-daemon`. Codex can also select a skill when your request matches its description.
 
 ### Quizzer
 
@@ -114,6 +120,18 @@ $question-helper Answer now: fix this function and show the corrected code.
 
 University is the default. You can switch modes during a conversation.
 
+### HTML Daemon
+
+Use Python 3 and the HTML Daemon skill to save a self-contained HTML file and get its viewing URL:
+
+```text
+$html-daemon Upload /absolute/path/to/page.html with the title "My page" and return its viewing URL.
+```
+
+The service uses https://admin.111416.xyz for its API and https://111416.xyz for saved pages. Include CSS and JavaScript inline; files must be UTF-8 and at most 1 MiB. The bundled helper verifies uploaded bytes and also supports listing, downloading, replacing, renaming, and deleting documents. It has no Python package dependencies.
+
+The service currently has no authentication, so uploaded documents are publicly accessible. The skill explains viewer restrictions, browser storage, and version checks for updates. Use the returned `viewUrl` to open a page; `downloadUrl` deliberately downloads the original file.
+
 ## Update installed skills
 
 Installed copies do not track changes in this repo. Back up any edits you made to those copies before updating.
@@ -122,7 +140,7 @@ From your forefather checkout, pull the latest version and copy the folders to t
 
 ```sh
 git pull --ff-only
-cp -R quizzer question-helper ~/.agents/skills/
+cp -R quizzer question-helper html-daemon ~/.agents/skills/
 ```
 
 For a project installation, replace `~/.agents/skills/` with that project's `.agents/skills/` directory. If an earlier installer used `~/.codex/skills/` or a custom destination, copy there instead. Keep one installed copy per skill to avoid duplicate entries.

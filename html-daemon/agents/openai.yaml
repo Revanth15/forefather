@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Daemon"
+  short_description: "Save and manage standalone HTML documents"
+  default_prompt: "Use $html-daemon to save this HTML file and return its viewing URL."
