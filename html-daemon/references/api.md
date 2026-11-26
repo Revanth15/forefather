@@ -19,4 +19,4 @@ Titles and filenames are 1–200 characters, with no control characters. Filenam
 
 Errors use `{error:{code,message,requestId}}`. 400 means invalid input; 403 means a cross-origin browser mutation; 404 means absent document; 412 means a stale version; 413 means oversized input; 415 means wrong content type; 428 means missing If-Match. No automatic write retries or idempotency keys. Metadata changes also increment the version.
 
-On the content origin (`https://111416.xyz`), documents can also opt into D1-backed state persistence via `/__hd/storage.js` and `/api/v1/documents/:id/state` (`POST`, `GET`, `PUT`, `DELETE` with `X-State-Token` and `If-Match`, capped at 512 KiB JSON).
+On the content origin (`https://111416.xyz`), served `/d/:id` pages automatically load `/__hd/storage.js` to sync plain `localStorage` to Cloudflare D1 via `/api/v1/documents/:id/state` (`POST`, `GET`, `PUT`, `DELETE` with `X-State-Token` and `If-Match`, capped at 512 KiB JSON). Downloads at `/v1/documents/:id/content` still return the exact original bytes untouched.
