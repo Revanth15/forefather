@@ -16,7 +16,7 @@ There is currently no authentication. Uploading makes the file accessible throug
 
 ## Save a document
 
-Prepare one nonempty UTF-8 `.html` file, up to 1 MiB. Include CSS and JavaScript inline. Embed images and fonts using data URLs. The viewer blocks external scripts, stylesheets, fetch/XHR/WebSocket requests, child frames, workers, form submissions, popups, and top navigation. Inline module scripts can run, but external imports and eval-based libraries will not work.
+Prepare one nonempty UTF-8 `.html` file, up to 1 MiB. Include CSS and JavaScript inline (or opt into `<script src="/__hd/storage.js"></script>` for D1 cloud state sync). Embed images and fonts using data URLs. The viewer blocks external scripts, stylesheets, external fetch/XHR/WebSocket requests, child frames, workers, form submissions, popups, and top navigation. Inline module scripts can run, but external imports and eval-based libraries will not work.
 
 Run the helper relative to this skill's directory:
 
@@ -28,16 +28,34 @@ It creates a document and verifies the downloaded SHA-256 against the file. Retu
 
 A request to save/upload authorizes creation. A request to replace, rename, or delete authorizes only the identified document. Do not replace a document just because its title matches. When the target is ambiguous, list candidates and resolve the ID first.
 
-## Browser state
+## Browser state & optional D1 cloud sync
 
-Documents share one content origin on the content hostname. Prefix storage keys with a stable document-specific namespace. A generated page can derive its namespace from the URL:
+Documents default to browser `localStorage` on the content origin. Prefix manual storage keys with a stable document-specific namespace:
 
 ```js
 const documentId = location.pathname.split("/").filter(Boolean).at(-1);
 const storageKey = `html-daemon:${documentId}:state`;
 ```
 
-This prevents accidental key collisions; it does not isolate documents from each other. All saved JavaScript must be trusted by the owner. The admin origin is separate. Browser storage does not sync to Cloudflare or other devices, and privacy settings can restrict iframe storage. Standalone and embedded views can have different storage partitions. Updating a document keeps its URL and storage namespace. The move from the former content origin to `111416.xyz` changes the browser storage namespace; previously saved localStorage does not migrate automatically.
+For pages that should let users choose between **local storage** and **cross-device Cloudflare D1 persistence** (via a unique `#s=<token>` link, up to 512 KiB JSON), include the built-in same-origin helper:
+
+```html
+<script src="/__hd/storage.js"></script>
+<script type="module">
+  const store = window.htmlDaemonStorage;
+  // Optional floating switcher widget (Local storage <-> Cloud sync link):
+  store.mountSwitcher({ onReload: (fresh) => render(fresh) });
+
+  const state = await store.load({ items: [] });
+  render(state);
+  // Saves immediately to localStorage; in cloud mode, syncs to D1 every 30s (or on tab close / "Sync now"):
+  await store.save(nextState);
+</script>
+```
+
+Available methods on `window.htmlDaemonStorage`: `load(fallback)`, `save(data, { immediate })`, `flush()`, `reload()`, `configure({ syncIntervalMs })`, `enableCloudSync(initialData?)`, `useLocalStorage({ copyToLocal, deleteRemote })`, `deleteCloudState()`, `getMode()`, `getShareUrl()`, `getStatus()`, `subscribe(fn)`, `mountSwitcher({ position, container, onReload, onModeChange })`. Or add `data-ui="auto"` (and optional `data-sync-interval="30000"`) to `<script src="/__hd/storage.js" data-ui="auto"></script>` to mount the switcher automatically. Switching to cloud sync migrates the current local state into D1 and updates `location.hash` to `#s=<token>` so the user can open the same link on another computer.
+
+Local storage keys prevent accidental collisions; they do not isolate documents from each other. All saved JavaScript must be trusted by the owner. The admin origin is separate. External network requests remain blocked (`connect-src 'self'`). Updating a document keeps its URL, local storage namespace, and existing D1 cloud state links. Deleting a document removes its D1 cloud states.
 
 ## Manage existing documents
 

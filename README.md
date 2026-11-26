@@ -130,7 +130,7 @@ $html-daemon Upload /absolute/path/to/page.html with the title "My page" and ret
 
 The service uses https://admin.111416.xyz for its API and https://111416.xyz for saved pages. Include CSS and JavaScript inline; files must be UTF-8 and at most 1 MiB. The bundled helper verifies uploaded bytes and also supports listing, downloading, replacing, renaming, and deleting documents. It has no Python package dependencies.
 
-The service currently has no authentication, so uploaded documents are publicly accessible. The skill explains viewer restrictions, browser storage, and version checks for updates. Use the returned `viewUrl` to open a page; `downloadUrl` deliberately downloads the original file.
+The service currently has no authentication, so uploaded documents are publicly accessible. The skill explains viewer restrictions, browser storage, optional Cloudflare D1 sync links (`/__hd/storage.js`), and version checks for updates. Use the returned `viewUrl` to open a page; `downloadUrl` deliberately downloads the original file.
 
 ## Update installed skills
 

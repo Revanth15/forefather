@@ -18,3 +18,5 @@ Metadata fields: `id`, `title`, `filename`, `sizeBytes`, `contentSha256`, `versi
 Titles and filenames are 1–200 characters, with no control characters. Filenames must be plain `.html` filenames without slashes. IDs are lowercase UUIDv4. HTML is limited to 1,048,576 UTF-8 bytes. Whitespace and a UTF-8 BOM are preserved. Invalid UTF-8 and unpaired Unicode surrogates are rejected.
 
 Errors use `{error:{code,message,requestId}}`. 400 means invalid input; 403 means a cross-origin browser mutation; 404 means absent document; 412 means a stale version; 413 means oversized input; 415 means wrong content type; 428 means missing If-Match. No automatic write retries or idempotency keys. Metadata changes also increment the version.
+
+On the content origin (`https://111416.xyz`), documents can also opt into D1-backed state persistence via `/__hd/storage.js` and `/api/v1/documents/:id/state` (`POST`, `GET`, `PUT`, `DELETE` with `X-State-Token` and `If-Match`, capped at 512 KiB JSON).
